@@ -24,6 +24,24 @@ export default function Screen01() {
         fetchDataCategory()
     },[])
 
+
+    const fetachLocation = async () =>{
+        try {
+         const response = await fetch('https://6459bc8595624ceb21ee7bff.mockapi.io/projectt/location')
+         const json = await response.json()
+         setDataLocation(json)
+        } catch (error) {
+             console.error("Khong load duoc API")
+        }
+        finally{
+             setLoadingLocation(false)
+        }
+     }
+ 
+     useEffect(()=>{
+         fetachLocation()
+     },[])
+
     return (
         <View>
            <ScrollView style={{width:'100%',height:500}}>
@@ -66,11 +84,25 @@ export default function Screen01() {
                             ))
                            }
                        </View>
-                    </View>
 
+                         <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
+                            <Text>Popular Destination</Text>
+                            <Image style={{height:30,width:30}} source={require("../assets/baiTH4/3gach.png")}></Image>
+                        </View>
+
+                        <View style={styles.flexCustom}>
+                           {
+                             dataLocation.slice(0,3).map((location)=>(
+                                <View> 
+                                      <Image style={styles.popularItem} source={{uri: location.image}}></Image>
+                                 </View>
+                             ))
+                           }
+                        </View>
+                    </View>
                 </View>
 
-                
+
            </ScrollView>
         </View>
       );
@@ -128,5 +160,10 @@ const styles = StyleSheet.create({
         height:70,
         width:70,
         gap:4
+    },
+    popularItem:{
+        height:110,
+        width:110,
+        borderRadius:'10px'
     }
 })
