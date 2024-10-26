@@ -48,6 +48,29 @@ export default function Screen01() {
 
                         </View>
                 </View>
+
+                <View style={styles.main}>
+                    <View>
+                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
+                            <Text>Category</Text>
+                            <Image style={{height:30,width:30}} source={require("../assets/baiTH4/3gach.png")}></Image>
+                        </View>
+    
+                       <View style={styles.listCategory}>
+                           {
+                            dataCategory.map((category)=>(
+                                <View style={{alignItems:'center'}}>
+                                    <Image style={styles.categoryItem} source={{uri: category.image}}></Image>
+                                    <Text>{category.name}</Text>
+                                </View>
+                            ))
+                           }
+                       </View>
+                    </View>
+
+                </View>
+
+                
            </ScrollView>
         </View>
       );
@@ -88,6 +111,22 @@ const styles = StyleSheet.create({
         width:53,
         borderRadius:'100%',
         marginRight:15
+    },
+    main:{
+        backgroundColor:'white',
+        padding:40,
+        alignItems:'center'
+    },
+    listCategory:{
+        display:'flex',
+        flexDirection:'row',
+        flexWrap:'wrap',
+        // width:'70%',
+        justifyContent:'center'
+    },
+    categoryItem:{
+        height:70,
+        width:70,
+        gap:4
     }
-
 })
