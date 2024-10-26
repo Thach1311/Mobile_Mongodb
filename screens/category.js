@@ -1,0 +1,34 @@
+[
+    {
+        "name":"Ressort",
+        "image":"https://imgur.com/Mamjkbl.png"
+    },
+    {
+        "name":"Homestay",
+        "image":"https://imgur.com/69MF2Hq.png"
+    },
+    {
+        "name":"Hotel",
+        "image":"https://imgur.com/7lRJV5u.png"
+    },
+    {
+        "name":"Ladge",
+        "image":"https://imgur.com/U0HHtX4.png"
+    },
+    {
+        "name":"Villa",
+        "image":"https://imgur.com/0QF8gXn.png"
+    },
+    {
+        "name":"Apartement",
+        "image":"https://imgur.com/cPdyQeR.png"
+    },
+    {
+        "name":"Hotel",
+        "image":"https://imgur.com/7lRJV5u.png"
+    },
+    {
+        "name":"See all",
+        "image":"https://imgur.com/qdlLQCE.png"
+    }
+]
