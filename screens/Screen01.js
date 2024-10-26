@@ -69,8 +69,8 @@ export default function Screen01() {
 
                 <View style={styles.main}>
                     <View>
-                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
-                            <Text>Category</Text>
+                        <View style={[styles.flexCustom,{justifyContent:'space-between',marginTop:20,marginBottom:20}]}>
+                            <Text style={{fontWeight:'800'}}>Category</Text>
                             <Image style={{height:30,width:30}} source={require("../assets/baiTH4/3gach.png")}></Image>
                         </View>
     
@@ -85,8 +85,8 @@ export default function Screen01() {
                            }
                        </View>
 
-                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
-                            <Text>Popular Destination</Text>
+                        <View style={[styles.flexCustom,{justifyContent:'space-between',marginTop:20,marginBottom:20}]}>
+                            <Text style={{fontWeight:'800'}}>Popular Destination</Text>
                             <Image style={{height:30,width:30}} source={require("../assets/baiTH4/3gach.png")}></Image>
                         </View>
 
@@ -101,8 +101,8 @@ export default function Screen01() {
                         </View>
 
 
-                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
-                            <Text>Recommended</Text>
+                        <View style={[styles.flexCustom,{justifyContent:'space-between',marginTop:20,marginBottom:20}]}>
+                            <Text style={{fontWeight:'800'}}>Recommended</Text>
                         </View>
 
                         <View style={styles.flexCustom}>
@@ -168,7 +168,8 @@ const styles = StyleSheet.create({
         borderRadius:'5px',
         padding:5,
         height:35,
-        width:250
+        width:250,
+        marginLeft:10
     },
     avatar:{
         height:53,
@@ -192,17 +193,22 @@ const styles = StyleSheet.create({
     categoryItem:{
         height:70,
         width:70,
-        gap:4
+        marginRight:2,
+        marginLeft:2
     },
     popularItem:{
         height:110,
         width:110,
-        borderRadius:'10px'
+        borderRadius:'10px',
+        marginRight:2,
+        marginLeft:2
     },
     commended:{
         height:100,
         width:170,
-        borderRadius:'10px'
+        borderRadius:'10px',
+        marginRight:2,
+        marginLeft:2
     },
     footer:{
         display:'flex',
@@ -212,7 +218,9 @@ const styles = StyleSheet.create({
         backgroundColor:'#5958b2',
         flex:10,
         height:100,
-        width:'100%'
+        width:'100%',
+        padding:15
+       
     },
     footerItem:{
         alignItems:'center',
