@@ -85,7 +85,7 @@ export default function Screen01() {
                            }
                        </View>
 
-                         <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
+                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
                             <Text>Popular Destination</Text>
                             <Image style={{height:30,width:30}} source={require("../assets/baiTH4/3gach.png")}></Image>
                         </View>
@@ -95,6 +95,21 @@ export default function Screen01() {
                              dataLocation.slice(0,3).map((location)=>(
                                 <View> 
                                       <Image style={styles.popularItem} source={{uri: location.image}}></Image>
+                                 </View>
+                             ))
+                           }
+                        </View>
+
+
+                        <View style={[styles.flexCustom,{justifyContent:'space-between'}]}>
+                            <Text>Recommended</Text>
+                        </View>
+
+                        <View style={styles.flexCustom}>
+                           {
+                             dataLocation.slice(3,5).map((location)=>(
+                                <View> 
+                                      <Image style={styles.commended} source={{uri: location.image}}></Image>
                                  </View>
                              ))
                            }
@@ -164,6 +179,11 @@ const styles = StyleSheet.create({
     popularItem:{
         height:110,
         width:110,
+        borderRadius:'10px'
+    },
+    commended:{
+        height:100,
+        width:170,
         borderRadius:'10px'
     }
 })
