@@ -43,8 +43,8 @@ export default function Screen01() {
      },[])
 
     return (
-        <View>
-           <ScrollView style={{width:'100%',height:500}}>
+        <View style={{height:'100%'}}>
+           <ScrollView style={{width:'100%',height:'100%'}}>
                 <View style={styles.header}>
                         <View style={styles.flexCustom}>
                             <Image style={styles.iconLogo} source={require("../assets/baiTH4/logoicon.png")}></Image>
@@ -117,7 +117,24 @@ export default function Screen01() {
                     </View>
                 </View>
 
-
+               <View style={styles.footer}>
+                 <View style={styles.footerItem}>
+                    <Image style={{height:50,width:50}} source={require("../assets/baiTH4/homeicon.png")}></Image>
+                    <Text style={{color:'white'}}>Home</Text>
+                 </View>
+                 <View style={styles.footerItem}>
+                    <Image style={{height:50,width:50}} source={require("../assets/baiTH4/exploreicon.png")}></Image>
+                    <Text style={{color:'white'}}>Explore</Text>
+                 </View>
+                 <View style={styles.footerItem}>
+                    <Image style={{height:50,width:50}} source={require("../assets/baiTH4/searchicon.png")}></Image>
+                    <Text style={{color:'white'}}>Search</Text>
+                 </View>
+                 <View style={styles.footerItem}>
+                    <Image style={{height:50,width:50}} source={require("../assets/baiTH4/profileicon.png")}></Image>
+                    <Text style={{color:'white'}}>Profile</Text>
+                 </View>
+               </View>
            </ScrollView>
         </View>
       );
@@ -162,7 +179,8 @@ const styles = StyleSheet.create({
     main:{
         backgroundColor:'white',
         padding:40,
-        alignItems:'center'
+        alignItems:'center',
+    
     },
     listCategory:{
         display:'flex',
@@ -185,5 +203,20 @@ const styles = StyleSheet.create({
         height:100,
         width:170,
         borderRadius:'10px'
+    },
+    footer:{
+        display:'flex',
+        flexDirection:'row',
+        justifyContent:'space-around',
+        alignItems:'center',
+        backgroundColor:'#5958b2',
+        flex:10,
+        height:100,
+        width:'100%'
+    },
+    footerItem:{
+        alignItems:'center',
+        bottom:0,
+        
     }
 })
