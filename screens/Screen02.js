@@ -1,37 +1,32 @@
-// RegistrationScreen.js
+// Screen02.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 
-const Screen01 = ({navigation}) => {
-    const [username, setUsername] = useState('');
+const Screen02 = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleRegister = () => {
-        if (!username || !email || !password) {
-            Alert.alert('Error', 'All fields are required');
+    const handleLogin = () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Both fields are required');
             return;
         }
 
-        axios.post('http://localhost:3000/register', { username, email, password })
+        axios.post('http://localhost:3000/login', { email, password })
             .then(response => {
-                Alert.alert('Success', response.data.message);
-                navigation.navigate("Screen02")
+                Alert.alert('Success', 'Logged in successfully!');
+                const userId = response.data.user.id;
+                navigation.navigate("ScreenMain",{userId})
+
             })
             .catch(error => {
-                Alert.alert('Error', error.response?.data?.error || 'Registration failed');
+                Alert.alert('Error', error.response?.data?.error || 'Login failed');
             });
     };
 
     return (
         <View style={styles.container}>
-            <TextInput
-                style={styles.input}
-                placeholder="Username"
-                value={username}
-                onChangeText={setUsername}
-            />
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -46,7 +41,7 @@ const Screen01 = ({navigation}) => {
                 onChangeText={setPassword}
                 secureTextEntry
             />
-            <Button title="Register" onPress={handleRegister} />
+            <Button title="Login" onPress={handleLogin} />
         </View>
     );
 };
@@ -66,4 +61,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Screen01;
+export default Screen02;
