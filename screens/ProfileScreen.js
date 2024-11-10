@@ -1,65 +1,67 @@
-// ProfileScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, TextInput, Button } from 'react-native';
 import axios from 'axios';
 
 const ProfileScreen = ({ route, navigation }) => {
-    const { userId } = route.params; // User ID passed from the main screen
+    const { token, userInfo } = route.params; // Get token and userInfo from previous screen
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/users/${userId}`); // Adjust URL as needed
+                const response = await axios.get(`http://localhost:5000/api/users/username/${userInfo.username}`, {
+                    headers: { Authorization: `Bearer ${token}` } // Send token in header
+                });
                 setUserData(response.data);
-                setUsername(response.data.username); // Initialize state for editing
-                setEmail(response.data.email); // Initialize state for editing
+                setEmail(response.data.email); // Initialize email state
             } catch (error) {
                 console.error("Error fetching user data:", error);
+                Alert.alert('Error', 'Failed to load user data');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchUserData();
-    }, [userId]);
+    }, [token, userInfo]);
 
-    const handleLogout = () => {
-         navigation.navigate('ScreenHome'); // Navigate to home or login screen
-    }
     const handleEdit = () => {
         setIsEditing(true);
     };
 
     const handleSave = async () => {
         try {
-            await axios.put(`http://localhost:3000/users/${userId}`, {
-                username,
+            await axios.put(`http://localhost:5000/api/users/${userData._id}`, {
                 email,
-                password: password || undefined // Send password only if provided
+                password: password || undefined // Only update password if provided
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
-            setUserData({ ...userData, username, email }); // Update local state
+            setUserData({ ...userData, email }); // Update userData email
             setIsEditing(false);
-            setPassword(''); // Clear password field
+            setPassword('');
+            Alert.alert('Success', 'Profile updated successfully');
         } catch (error) {
             console.error("Error updating user data:", error);
+            Alert.alert('Error', 'Failed to update profile');
         }
     };
 
-    const handleDelete =async () => {
-        
+    const handleDelete = async () => {
         try {
-            await axios.delete(`http://localhost:3000/users/${userId}`);
-            navigation.navigate('ScreenHome'); // Navigate to home or login screen
+            await axios.delete(`http://localhost:5000/api/users/${userData._id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            Alert.alert('Success', 'Account deleted successfully');
+            navigation.navigate('ScreenHome'); // Navigate to home screen
         } catch (error) {
             console.error("Error deleting account:", error);
+            Alert.alert('Error', 'Failed to delete account');
         }
-               
     };
 
     if (loading) {
@@ -80,12 +82,7 @@ const ProfileScreen = ({ route, navigation }) => {
             <Image style={styles.avatar} source={require("../assets/baiTH4/avt.jpg")} />
             {isEditing ? (
                 <>
-                    <TextInput
-                        style={styles.input}
-                        value={username}
-                        onChangeText={setUsername}
-                        placeholder="Username"
-                    />
+                    <Text style={styles.name}>{userData.username}</Text> {/* Display username without editing */}
                     <TextInput
                         style={styles.input}
                         value={email}
@@ -104,16 +101,13 @@ const ProfileScreen = ({ route, navigation }) => {
                 </>
             ) : (
                 <>
-                    <Text style={styles.name}>{userData.username}</Text>
+                    <Text style={styles.name}>{userData.username}</Text> {/* Display username */}
                     <Text style={styles.email}>{userData.email}</Text>
                     <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
                         <Text style={styles.editText}>Edit Profile</Text>
                     </TouchableOpacity>
                 </>
             )}
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
                 <Text style={styles.deleteText}>Delete Account</Text>
             </TouchableOpacity>
@@ -127,7 +121,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
-        backgroundColor: '#f8f9fa', // Light background color
+        backgroundColor: '#f8f9fa',
     },
     loadingContainer: {
         flex: 1,
@@ -139,14 +133,11 @@ const styles = StyleSheet.create({
         width: 100,
         borderRadius: 50,
         marginBottom: 20,
-        borderColor: '#007bff', // Add a border
-        borderWidth: 2,
     },
     name: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#343a40', // Dark text color
     },
     email: {
         fontSize: 18,
@@ -162,7 +153,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     editButton: {
-        backgroundColor: '#007bff', // Blue background for edit
+        backgroundColor: '#007bff',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
@@ -173,19 +164,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    logoutButton: {
-        backgroundColor: '#dc3545', // Red background for logout
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-    },
-    logoutText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     deleteButton: {
-        backgroundColor: '#dc3545', // Red background for delete
+        backgroundColor: '#dc3545',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,

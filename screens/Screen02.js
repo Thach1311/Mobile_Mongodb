@@ -1,38 +1,41 @@
-// Screen02.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import axios from 'axios';
 
-const Screen02 = ({navigation}) => {
-    const [email, setEmail] = useState('');
+const Screen02 = ({ navigation }) => {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = () => {
-        if (!email || !password) {
+    const handleLogin = async () => {
+        if (!username || !password) {
             Alert.alert('Error', 'Both fields are required');
             return;
         }
 
-        axios.post('http://localhost:3000/login', { email, password })
-            .then(response => {
-                Alert.alert('Success', 'Logged in successfully!');
-                const userId = response.data.user.id;
-                navigation.navigate("ScreenMain",{userId})
-
-            })
-            .catch(error => {
-                Alert.alert('Error', error.response?.data?.error || 'Login failed');
+        try {
+            const response = await axios.post('http://localhost:5000/api/login', { username, password });
+            const { token } = response.data; // Retrieve the token
+       
+            // Retrieve user information using the token
+            const userResponse = await axios.get('http://localhost:5000/api/users/username/' + username, {
+                headers: { Authorization: `Bearer ${token}` }
             });
+            const userInfo = userResponse.data;
+
+            // Navigate to ScreenMain with token and userInfo
+            navigation.navigate("ScreenMain", { token, userInfo });
+        } catch (error) {
+            Alert.alert('Error', error.response?.data?.message || 'Login failed');
+        }
     };
 
     return (
         <View style={styles.container}>
             <TextInput
                 style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
             />
             <TextInput
                 style={styles.input}

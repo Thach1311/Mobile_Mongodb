@@ -1,9 +1,8 @@
-// RegistrationScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 
-const Screen01 = ({navigation}) => {
+const Screen01 = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,14 +13,19 @@ const Screen01 = ({navigation}) => {
             return;
         }
 
-        axios.post('http://localhost:3000/register', { username, email, password })
-            .then(response => {
-                Alert.alert('Success', response.data.message);
-                navigation.navigate("Screen02")
-            })
-            .catch(error => {
-                Alert.alert('Error', error.response?.data?.error || 'Registration failed');
-            });
+        axios.post('http://localhost:5000/api/register', { 
+            _id: Date.now().toString(), // Sử dụng timestamp làm _id
+            username, 
+            email, 
+            password 
+        })
+        .then(response => {
+            Alert.alert('Success', 'Registration successful');
+            navigation.navigate("Screen02"); // Chuyển hướng đến màn hình tiếp theo
+        })
+        .catch(error => {
+            Alert.alert('Error', error.response?.data?.message || 'Registration failed');
+        });
     };
 
     return (

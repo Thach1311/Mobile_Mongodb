@@ -1,149 +1,142 @@
 const express = require('express');
-const mysql = require('mysql2');
-const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const User = require('./UserTravel'); 
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = 'your_jwt_secret'; // Thay đổi secret này
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// MySQL connection setup
-const db = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '123',
-    database: 'user_database',
-    port: 3307  
-});
+// Kết nối tới MongoDB cục bộ
+const mongoDBConnectionString = 'mongodb://localhost:27017/userTravel';
 
-// Connect to the database
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
+mongoose.connect(mongoDBConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log('Error connecting to MongoDB:', err));
+
+// Route đăng ký
+app.post('/api/register', async (req, res) => {
+    const { _id, username, email, password } = req.body;
+
+    // Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+        _id,
+        username,
+        email,
+        password: hashedPassword
+    });
+
+    try {
+        const savedUser = await newUser.save();
+        res.status(201).json(savedUser);
+    } catch (error) {
+        res.status(400).json({ message: 'Error registering user', error });
     }
-    console.log('Connected to the database');
 });
 
-// Endpoint for user registration
-app.post('/register', (req, res) => {
+// Route đăng nhập
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+
+        // Kiểm tra mật khẩu
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+
+        // Tạo token
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+        res.json({ token });
+    } catch (error) {
+        res.status(500).json({ message: 'Error logging in', error });
+    }
+});
+
+// Route để lấy dữ liệu từ collection 
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find(); 
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving users', error });
+    }
+});
+
+// Route để lấy thông tin người dùng
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error });
+    }
+});
+
+// Route để cập nhật thông tin người dùng
+app.put('/api/users/:id', async (req, res) => {
     const { username, email, password } = req.body;
-
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    const saltRounds = 10;
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error hashing password' });
-        }
-
-        db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], (err, result) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error saving user to database' });
-            }
-            res.status(201).json({ message: 'User registered successfully!' });
-        });
-    });
-});
-
-// Login endpoint
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Both email and password are required' });
-    }
-
-    db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-        if (err || results.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        const user = results[0];
-
-        bcrypt.compare(password, user.password, (err, match) => {
-            if (err || !match) {
-                return res.status(401).json({ error: 'Invalid credentials' });
-            }
-            res.status(200).json({ message: 'Logged in successfully!', user: { id: user.id, username: user.username, email: user.email } });
-        });
-    });
-});
-
-// Example endpoint to get data
-app.get('/data', (req, res) => {
-    db.query('SELECT * FROM users', (err, results) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Endpoint to get user details by ID
-app.get('/users/:id', (req, res) => {
-    const userId = req.params.id;
-
-    db.query('SELECT id, username, email FROM users WHERE id = ?', [userId], (err, results) => {
-        if (err || results.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.json(results[0]);
-    });
-});
-
-// Endpoint to update user details
-app.put('/users/:id', (req, res) => {
-    const userId = req.params.id;
-    const { username, email, password } = req.body;
-
-    if (!username || !email) {
-        return res.status(400).json({ error: 'Username and email are required' });
-    }
-
-    const updates = [];
-    const params = [username, email, userId];
-
-    if (password) {
-        const saltRounds = 10;
-        const hash = bcrypt.hashSync(password, saltRounds);
-        updates.push(`password = ?`);
-        params.unshift(hash);
-    }
-
-    updates.push(`username = ?`, `email = ?`);
-
-    const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
     
-    db.query(sql, params, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error updating user data' });
+    try {
+        const updatedData = { username, email };
+        if (password) {
+            updatedData.password = await bcrypt.hash(password, 10);
         }
-        res.json({ message: 'User updated successfully' });
-    });
+
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating user', error });
+    }
 });
 
-// Endpoint to delete user account
-app.delete('/users/:id', (req, res) => {
-    const userId = req.params.id;
-
-    db.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: 'Error deleting user' });
+// Route để xóa tài khoản
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.id);
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
         }
         res.json({ message: 'User deleted successfully' });
-    });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting user', error });
+    }
 });
 
-// Listen for requests
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+// Route để lấy thông tin người dùng theo username
+app.get('/api/users/username/:username', async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error });
+    }
+});
+
+
+// Khởi động server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
